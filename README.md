@@ -95,3 +95,52 @@ So:
 ```y_train``` has shape **(102, 20)**:
 * For each race, we have **20 targets** → the final positions of all 20 drivers.
 
+## 🧠 Model Architecture (TimeDistributed LSTM)
+
+This repository focuses on a **TimeDistributed LSTM** model for sequence modelling on lap data.
+
+At a high level, the pipeline is:
+
+1. **Input:** For each driver in a race, a sequence of lap-level features.
+2. **LSTM layers:** Capture temporal patterns such as pace evolution, tyre degradation, and position changes over the laps.
+3. **Dense / TimeDistributed layers:** Transform the learned representation into a compact encoding.
+4. **Output:** A continuous prediction of the **final race position** for each driver.
+
+The model is trained with a **regression objective**, optimized using **Mean Absolute Error (MAE)** on final positions.
+
+
+## 📊 Experiments & Results
+
+During the experiments, different **lap windows** (10, 20, 30, 40 laps) were used to see how much of the race is needed to make meaningful predictions.
+
+Key points:
+
+* Using more laps generally leads to lower prediction error.
+* The best-performing setup uses the **first 40 laps** of each race.
+* In this configuration, the TimeDistributed LSTM achieves a **Mean Absolute Error (MAE) as low as ~1.90** on the test set, meaning predictions are on average within about **2 positions** of the actual finishing place.
+
+These results show that early race dynamics alone can provide a strong signal for predicting final race outcomes.
+
+## 📂 Repository Structure
+
+This repository contains four main files:
+
+* ```lstm.ipynb``` → Main notebook for **training and evaluating** the TimeDistributed LSTM model.
+
+* ```data_cleaning.py``` → Utilities for **initial cleaning and preprocessing** of raw race data (handling missing laps, DNFs, alignment, etc.).
+
+* ```final_cleaner.py``` → Final preprocessing steps to build consistent race tensors and train/test splits.
+
+* ```LSTMDataPrep.py``` → Helper functions for preparing data in the shapes required by the LSTM (e.g. ```(num_races, num_drivers, num_laps_window, num_features)``` and the corresponding targets).
+
+## Possible Extensions
+
+Some ideas to extend or improve this work:
+* Weather status
+* Add **team-level historical success features** (e.g. average points / wins per season, constructor standing trends, track-specific performance)
+* Encode safety car / VSC phases, yellow flags, and incidents
+
+---
+> If you are interested in F1 data or want to experiment with similar models, feel free to open an issue or reach out.
+
+
